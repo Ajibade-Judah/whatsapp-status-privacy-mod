@@ -53,6 +53,26 @@ export default function StatusPrivacyScreen() {
         </TouchableOpacity>
       ))}
 
+      {/* Custom Privacy Option */}
+      <TouchableOpacity
+        style={styles.customOptionContainer}
+        onPress={() => {
+          // Handle custom privacy navigation here
+          console.log('Navigate to custom privacy settings');
+        }}
+      >
+        <View style={styles.customIconContainer}>
+          <Ionicons
+            name="add"
+            size={16}
+            color="#128C7E"
+          />
+        </View>
+        <View style={styles.optionRow}>
+          <Text style={styles.optionTitle}>Custom privacy</Text>
+        </View>
+      </TouchableOpacity>
+
       <View style={styles.divider} />
 
       {/* Share Across Header */}
@@ -112,6 +132,24 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingLeft: 25,
     paddingRight: 15,
+  },
+  customOptionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingLeft: 25,
+    paddingRight: 15,
+  },
+  customIconContainer: {
+    width: 20,
+    height: 20,
+    borderRadius: 11,
+    borderWidth: 1.75,
+    borderColor: '#128C7E',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+    paddingTop: 1,
   },
   radioIcon: {
     marginRight: 15,
