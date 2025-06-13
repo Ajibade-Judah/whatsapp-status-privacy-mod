@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import facebookLogo from '../../assets/images/facebook.png'; // Adjust path if needed
 
 export default function StatusPrivacyScreen() {
@@ -56,10 +57,7 @@ export default function StatusPrivacyScreen() {
       {/* Custom Privacy Option */}
       <TouchableOpacity
         style={styles.customOptionContainer}
-        onPress={() => {
-          // Handle custom privacy navigation here
-          console.log('Navigate to custom privacy settings');
-        }}
+        onPress={() => router.push('/custom-privacy')}
       >
         <View style={styles.customIconContainer}>
           <Ionicons
