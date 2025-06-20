@@ -1,39 +1,78 @@
+// StatusPrivacyScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import facebookLogo from '../../assets/images/facebook.png'; // Adjust path if needed
+import { router, useFocusEffect } from 'expo-router';
+import facebookLogo from '../../assets/images/facebook.png';
+
+interface CustomPrivacyOption {
+  id: string;
+  name: string;
+  mode: 'exclude' | 'include';
+  count: number;
+}
+
+interface OptionItem {
+  title: string;
+  subtitle?: string;
+  isCustom?: boolean;
+  customId?: string;
+}
 
 export default function StatusPrivacyScreen() {
   const [selectedOption, setSelectedOption] = useState(0);
+  const [customPrivacyOptions, setCustomPrivacyOptions] = useState<CustomPrivacyOption[]>([]);
+
   const counts = {
     excluded: 0,
     included: 0,
   };
 
-  const options = [
+  useFocusEffect(
+    React.useCallback(() => {
+      if (global.newCustomPrivacyOption) {
+        const newOption = global.newCustomPrivacyOption;
+        setCustomPrivacyOptions(prev => [...prev, newOption]);
+        global.newCustomPrivacyOption = null;
+      }
+    }, [])
+  );
+
+  const baseOptions: OptionItem[] = [
     { title: 'My contacts' },
     { title: 'My contacts except...', subtitle: `${counts.excluded} excluded` },
     { title: 'Only share with...', subtitle: `${counts.included} included` },
+  ];
+
+  const customOptionItems: OptionItem[] = customPrivacyOptions.map(option => ({
+    title: option.name,
+    subtitle: `${option.count} ${option.mode === 'exclude' ? 'excluded' : 'included'}`,
+    isCustom: true,
+    customId: option.id,
+  }));
+
+  const allOptions: OptionItem[] = [
+    ...baseOptions,
+    ...customOptionItems,
   ];
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="arrow-back" size={24} color="#000" style={{ paddingTop: 2 }} />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#000" style={{ paddingTop: 2 }} />
+        </TouchableOpacity>
         <Text style={styles.headerText}>Status privacy</Text>
       </View>
 
       <View style={styles.divider} />
 
       {/* Section Title */}
-      <Text style={styles.sectionHeaderLeft}>
-        Who can see my status updates
-      </Text>
+      <Text style={styles.sectionHeaderLeft}>Who can see my status updates</Text>
 
       {/* Radio Options */}
-      {options.map((option, index) => (
+      {allOptions.map((option, index) => (
         <TouchableOpacity
           key={index}
           style={styles.optionContainer}
@@ -60,11 +99,7 @@ export default function StatusPrivacyScreen() {
         onPress={() => router.push('/custom-privacy')}
       >
         <View style={styles.customIconContainer}>
-          <Ionicons
-            name="add"
-            size={16}
-            color="#128C7E"
-          />
+          <Ionicons name="add" size={16} color="#128C7E" />
         </View>
         <View style={styles.optionRow}>
           <Text style={styles.optionTitle}>Custom privacy</Text>
@@ -74,16 +109,11 @@ export default function StatusPrivacyScreen() {
       <View style={styles.divider} />
 
       {/* Share Across Header */}
-      <Text style={styles.sectionHeaderLeft}>
-        Share my status updates across my accounts
-      </Text>
+      <Text style={styles.sectionHeaderLeft}>Share my status updates across my accounts</Text>
 
       {/* Facebook Connection */}
       <View style={styles.fbContainer}>
-        <Image
-          source={facebookLogo}
-          style={styles.fbIcon}
-        />
+        <Image source={facebookLogo} style={styles.fbIcon} />
         <View>
           <Text style={styles.fbTitle}>Facebook</Text>
           <Text style={styles.fbSubtitle}>John Doe</Text>

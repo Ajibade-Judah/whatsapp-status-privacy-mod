@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, TextInput, FlatList, Image } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, TextInput, FlatList, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -44,6 +44,35 @@ export default function CustomPrivacyScreen() {
   ]);
 
   const selectedCount = contacts.filter(contact => contact.isSelected).length;
+
+  const handleSave = () => {
+    // Check if custom name is not empty and at least one contact is selected
+    if (customName.trim() === '') {
+      Alert.alert('Error', 'Please enter a custom list name');
+      return;
+    }
+    
+    if (selectedCount === 0) {
+      Alert.alert('Error', 'Please select at least one contact');
+      return;
+    }
+
+    // Create the custom privacy data
+    const customPrivacyData = {
+      id: Date.now().toString(), // Simple ID generation
+      name: customName.trim(),
+      mode: selectedMode,
+      selectedContacts: contacts.filter(contact => contact.isSelected),
+      count: selectedCount
+    };
+
+    // Store the data globally or pass it back to main screen
+    // For now, we'll use a simple global store approach
+    global.newCustomPrivacyOption = customPrivacyData;
+
+    // Navigate back to the main privacy screen
+    router.back();
+  };
 
   const toggleContact = (contactId: string) => {
     setContacts(prevContacts =>
@@ -97,27 +126,20 @@ export default function CustomPrivacyScreen() {
           </View>
         </View>
 
-        {/* Custom Name Input with Image Icon */}
+        {/* Custom Name Input */}
         <View style={styles.inputContainer}>
-          <View style={styles.inputRow}>
-            {/* Landscape Icon */}
-            <View style={styles.landscapeIcon}>
-              <Ionicons name="image" size={20} color="#128C7E" />
-            </View>
-            
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Custom list name"
-                value={customName}
-                onChangeText={setCustomName}
-                placeholderTextColor="#999"
-              />
-              {/* Emoji Icon */}
-              <TouchableOpacity style={styles.emojiIcon}>
-                <Ionicons name="happy-outline" size={20} color="#128C7E" />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Custom list name"
+              value={customName}
+              onChangeText={setCustomName}
+              placeholderTextColor="#999"
+            />
+            {/* Emoji Icon */}
+            <TouchableOpacity style={styles.emojiIcon}>
+              <Ionicons name="happy-outline" size={20} color="#128C7E" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -160,11 +182,12 @@ export default function CustomPrivacyScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderContact}
           style={styles.contactsList}
+          contentContainerStyle={styles.contactsContainer}
           showsVerticalScrollIndicator={false}
         />
 
         {/* Floating Save Button */}
-        <TouchableOpacity style={styles.floatingButton}>
+        <TouchableOpacity style={styles.floatingButton} onPress={handleSave}>
           <Ionicons name="checkmark" size={24} color="#fff" />
         </TouchableOpacity>
       </SafeAreaView>
@@ -200,16 +223,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  landscapeIcon: {
-    marginRight: 12,
-    padding: 8,
-  },
   inputWrapper: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -249,6 +263,9 @@ const styles = StyleSheet.create({
   contactsList: {
     flex: 1,
     paddingHorizontal: 15,
+  },
+  contactsContainer: {
+    paddingBottom: 100,
   },
   contactCard: {
     flexDirection: 'row',
